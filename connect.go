@@ -22,8 +22,9 @@ func GetSignature() string {
 	return os.Getenv(HyprlandInstanceSignature)
 }
 
-func StartUnixConnection() net.Conn {
-	connection, err := net.Dial("unix", "/tmp/hypr/"+GetSignature()+"/.gophrland.sock")
+// StartUnixConnection returns a connection to a socket name under /tmp/hypr/<HYPRLAND_INSTANCE_SIGNATURE>/.socketname.sock
+func StartUnixConnection(name string) net.Conn {
+	connection, err := net.Dial("unix", fmt.Sprintf("/tmp/hypr/%s/%s", GetSignature(), name))
 	if err != nil {
 		panic(err)
 	}
@@ -31,6 +32,7 @@ func StartUnixConnection() net.Conn {
 	return connection
 }
 
+// Write pushes a message to an opened connection
 func Write(c net.Conn, msg string) error {
 	length := len(msg)
 	data := make([]byte, 0, 4+length)
@@ -54,6 +56,8 @@ func Write(c net.Conn, msg string) error {
 
 	return nil
 }
+
+// Read gets message from an opened connection
 func Read(c net.Conn) (string, error) {
 	buf := make([]byte, 4)
 
@@ -81,6 +85,18 @@ func handleMessage(msg string) {
 		return
 	}
 }
+
+// ConnectHyprctl opens a connection to the writable socket
+// You must defer close it after opening it otherwise it will freeze your Hyprland session
+// conn, err := ConnectHyprctl()
+//
+//	if err != nil {
+//	  //handle error
+//	}
+//
+//	defer func() {
+//	  _ = conn.Close()
+//	}
 func ConnectHyprctl() (net.Conn, error) {
 	signature := GetSignature()
 	hyprctl := "/tmp/hypr/" + signature + "/.socket.sock"
@@ -100,6 +116,7 @@ func closeConn(conn net.Conn) {
 	}
 }
 
+// ConnectEvents opens a connection to the readable hyprland socket
 func ConnectEvents() {
 	signature := GetSignature()
 	socket := "/tmp/hypr/" + signature + "/.socket2.sock"
