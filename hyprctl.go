@@ -186,7 +186,7 @@ func MoveToWorkspaceID(currentWorkspaceID int, address string) error {
 	return MoveToWorkspaceSilent(strconv.Itoa(currentWorkspaceID), address)
 }
 func FocusWindow(address string) error {
-	return runHyprctlCmd(fmt.Sprintf("dispatch focuswindow address,%s", address))
+	return runHyprctlCmd(fmt.Sprintf("dispatch focuswindow address:%s", address))
 }
 
 func MoveToWorkspaceSilent(name, address string) error {
