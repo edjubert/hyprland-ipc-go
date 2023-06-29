@@ -189,6 +189,10 @@ func FocusWindow(address string) error {
 	return runHyprctlCmd(fmt.Sprintf("dispatch focuswindow address:%s", address))
 }
 
+func FocusMonitor(monitor HyprlandMonitor) error {
+	return runHyprctlCmd(fmt.Sprintf("dispatch focusmonitor %s", monitor.Name))
+}
+
 func MoveToWorkspaceSilent(name, address string) error {
 	return runHyprctlCmd(fmt.Sprintf("dispatch movetoworkspacesilent %s,address:%s", name, address))
 }
