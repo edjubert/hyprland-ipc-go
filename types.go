@@ -1,9 +1,13 @@
 package IPC
 
 type HyprlandWorkspace struct {
-	Id      int    `json:"id"`
-	Windows int    `json:"windows"`
-	Name    string `json:"name"`
+	Id              int    `json:"id"`
+	Windows         int    `json:"windows"`
+	Monitor         string `json:"monitor"`
+	Name            string `json:"name"`
+	HasFullscreen   bool   `json:"hasfullscreen"`
+	LastWindow      string `json:"lastwindow"`
+	LastWindowTitle string `json:"lastwindowtitle"`
 }
 
 type HyprlandMonitor struct {
