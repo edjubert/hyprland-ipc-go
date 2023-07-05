@@ -13,6 +13,8 @@ import (
 // HyprlandInstanceSignature is the hyprland instance signature
 const HyprlandInstanceSignature = "HYPRLAND_INSTANCE_SIGNATURE"
 
+const MaxBufferReadSize = 4096
+
 type Echo struct {
 	Length int
 	Data   []byte
@@ -59,23 +61,14 @@ func Write(c net.Conn, msg string) error {
 
 // Read gets message from an opened connection
 func Read(c net.Conn) (string, error) {
-	buf := make([]byte, 4)
+	buf := make([]byte, MaxBufferReadSize)
 
 	_, err := c.Read(buf)
 	if err != nil {
 		return "", err
 	}
 
-	byteCount := binary.BigEndian.Uint32(buf)
-	length := int(byteCount)
-	data := make([]byte, length)
-
-	_, err = c.Read(data)
-	if err != nil {
-		return "", err
-	}
-
-	return string(data), nil
+	return string(buf), nil
 }
 
 type HyprSocketMessage map[string][]string
