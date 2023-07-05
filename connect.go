@@ -80,8 +80,7 @@ func getSocketMessage(messages string) HyprSocketMessage {
 	for _, msg := range message {
 		m := strings.Split(msg, ">>")
 		if len(m) != 2 {
-			fmt.Println("[WARN] - Not enough args", m)
-			return nil
+			continue
 		}
 
 		socketMessages[m[0]] = append(socketMessages[m[0]], m[1])
