@@ -78,25 +78,20 @@ func Read(c net.Conn) (string, error) {
 	return string(data), nil
 }
 
-type HyprSocketMessage struct {
-	Event, Data string
-}
+type HyprSocketMessage map[string][]string
 
-func getSocketMessage(messages string) []HyprSocketMessage {
+func getSocketMessage(messages string) HyprSocketMessage {
 	message := strings.Split(messages, "\n")
 
-	socketMessages := make([]HyprSocketMessage, len(message))
-	for i, msg := range message {
+	socketMessages := HyprSocketMessage{}
+	for _, msg := range message {
 		m := strings.Split(msg, ">>")
 		if len(m) != 2 {
 			fmt.Println("[WARN] - Not enough args", m)
 			return nil
 		}
 
-		socketMessages[i] = HyprSocketMessage{
-			Event: m[0],
-			Data:  m[1],
-		}
+		socketMessages[m[0]] = append(socketMessages[m[0]], m[1])
 	}
 
 	return socketMessages
@@ -132,7 +127,7 @@ func closeConn(conn net.Conn) {
 	}
 }
 
-type HyprlandCallback func(event, data string)
+type HyprlandCallback func(socketMessages HyprSocketMessage)
 
 // ConnectEvents opens a connection to the readable hyprland socket
 func ConnectEvents(callbacks []HyprlandCallback) {
@@ -153,10 +148,8 @@ func ConnectEvents(callbacks []HyprlandCallback) {
 
 		socketMessages := getSocketMessage(msg)
 
-		for _, message := range socketMessages {
-			for _, callback := range callbacks {
-				callback(message.Event, message.Data)
-			}
+		for _, callback := range callbacks {
+			go callback(socketMessages)
 		}
 	}
 }
