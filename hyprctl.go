@@ -126,12 +126,14 @@ func SendNotification(time int, msgType, msg string) error {
 }
 
 func runHyprctlCmd(cmd string) error {
-	conn, err := ConnectHyprctl()
+	conn, err := ConnectHyprctl(0)
 	if err != nil {
 		return err
 	}
 	defer func() {
-		_ = conn.Close()
+		if err := conn.Close(); err != nil {
+			fmt.Println("[ERROR] - closing hyprctl conn", err)
+		}
 	}()
 
 	if _, err := conn.Write([]byte(cmd)); err != nil {

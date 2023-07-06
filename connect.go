@@ -8,6 +8,7 @@ import (
 	"net"
 	"os"
 	"strings"
+	"time"
 )
 
 // HyprlandInstanceSignature is the hyprland instance signature
@@ -89,6 +90,8 @@ func getSocketMessage(messages string) HyprSocketMessage {
 	return socketMessages
 }
 
+const MaxDialAttemp = 10
+
 // ConnectHyprctl opens a connection to the writable socket
 // You must defer close it after opening it otherwise it will freeze your Hyprland session
 // conn, err := ConnectHyprctl()
@@ -100,13 +103,19 @@ func getSocketMessage(messages string) HyprSocketMessage {
 //	defer func() {
 //	  _ = conn.Close()
 //	}
-func ConnectHyprctl() (net.Conn, error) {
+func ConnectHyprctl(attempt int) (net.Conn, error) {
 	signature := GetSignature()
 	hyprctl := "/tmp/hypr/" + signature + "/.socket.sock"
 
 	conn, err := net.Dial("unix", hyprctl)
 	if err != nil {
-		log.Fatal("[HYPRCTL] listen error", err)
+		fmt.Println("[HYPRCTL] listen error", err)
+		time.Sleep(time.Second / 2)
+		fmt.Println("[HYPRCTL] - Retrying")
+		if attempt < MaxDialAttemp {
+			return ConnectHyprctl(attempt + 1)
+		}
+
 		return nil, err
 	}
 
