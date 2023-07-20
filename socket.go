@@ -9,7 +9,7 @@ import (
 
 // RemoveSocket removes the socket file
 func RemoveSocket(name string) error {
-	return os.Remove(name)
+	return os.Remove(fmt.Sprintf("/tmp/hypr/%s/%s", GetSignature(), name))
 }
 
 // CreateSocket creates the socket file
