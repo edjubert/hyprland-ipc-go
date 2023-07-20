@@ -267,3 +267,24 @@ func MoveToSpecialNamed(specialWorkspaceName, clientAddress string) error {
 	}
 	return MoveClientToWorkspaceSilent("special"+specialWorkspaceName, clientAddress)
 }
+
+// GetMonitorByID return HyprlandMonitor for given HyprlandMonitor.Id
+func GetMonitorByID(monitorId int) (HyprlandMonitor, error) {
+	monitors, err := Monitors("-j")
+	if err != nil {
+		return HyprlandMonitor{}, err
+	}
+
+	for _, monitor := range monitors {
+		if monitor.Id == monitorId {
+			return monitor, nil
+		}
+	}
+
+	return HyprlandMonitor{}, fmt.Errorf("[ERROR] - Could not find monitor %d\n", monitorId)
+}
+
+// ResizeWindowPixel resize given HyprlandClient to specific width and height
+func ResizeWindowPixel(client HyprlandClient, intWidth, intHeight int) error {
+	return runHyprctlCmd(fmt.Sprintf("dispatch resizewindowpixel %d %d,address:%s", intWidth, intHeight, client.Address))
+}
