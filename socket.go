@@ -4,8 +4,15 @@ import (
 	"fmt"
 	"log"
 	"net"
+	"os"
 )
 
+// RemoveSocket removes the socket file
+func RemoveSocket(name string) error {
+	return os.Remove(name)
+}
+
+// CreateSocket creates the socket file
 func CreateSocket(name string) net.Listener {
 	socket := fmt.Sprintf("/tmp/hypr/%s/%s", GetSignature(), name)
 
