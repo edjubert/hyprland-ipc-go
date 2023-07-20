@@ -8,6 +8,7 @@ import (
 	"strconv"
 )
 
+// GetActiveClient returns the active HyprlandClient
 func GetActiveClient() (HyprlandClient, error) {
 	clientJSON, err := exec.Command("hyprctl", "activewindow", "-j").Output()
 	if err != nil {
@@ -22,6 +23,7 @@ func GetActiveClient() (HyprlandClient, error) {
 	return activewindow, nil
 }
 
+// GetWorkspaceFloatingClients returns all HyprlandClient that have HyprlandClient.Floating parameter set to true
 func GetWorkspaceFloatingClients(workspace HyprlandWorkspace) ([]HyprlandClient, error) {
 	clients, err := GetClients()
 	if err != nil {
@@ -38,6 +40,7 @@ func GetWorkspaceFloatingClients(workspace HyprlandWorkspace) ([]HyprlandClient,
 	return workspaceClients, nil
 }
 
+// GetClients returns all HyprlandClient
 func GetClients() ([]HyprlandClient, error) {
 	clientsJSON, err := exec.Command("hyprctl", "clients", "-j").Output()
 	if err != nil {
@@ -52,6 +55,7 @@ func GetClients() ([]HyprlandClient, error) {
 	return clients, nil
 }
 
+// GetClientByPID returns the HyprlandClient by its HyprlandClient.Pid
 func GetClientByPID(clients []HyprlandClient, pid int) (HyprlandClient, error) {
 	for _, client := range clients {
 		if client.Pid == pid {
@@ -62,6 +66,7 @@ func GetClientByPID(clients []HyprlandClient, pid int) (HyprlandClient, error) {
 	return HyprlandClient{}, fmt.Errorf("[ERROR] - could not found client")
 }
 
+// GetClientByClassName returns the HyprlandClient by its HyprlandClient.Class
 func GetClientByClassName(clients []HyprlandClient, class string) (HyprlandClient, error) {
 	for _, client := range clients {
 		if client.Class == class {
@@ -72,6 +77,7 @@ func GetClientByClassName(clients []HyprlandClient, class string) (HyprlandClien
 	return HyprlandClient{}, fmt.Errorf("[ERROR] - could not found client")
 }
 
+// Monitors returns all HyprlandMonitor
 func Monitors(format string) ([]HyprlandMonitor, error) {
 	if format != "" && format != "-j" {
 		return nil, fmt.Errorf("[ERROR] - wrong monitor formats")
@@ -90,6 +96,7 @@ func Monitors(format string) ([]HyprlandMonitor, error) {
 	return monitors, nil
 }
 
+// ActiveMonitor returns the active HyprlandMonitor
 func ActiveMonitor(monitors []HyprlandMonitor) (HyprlandMonitor, error) {
 	for _, monitor := range monitors {
 		if monitor.Focused {
@@ -100,6 +107,7 @@ func ActiveMonitor(monitors []HyprlandMonitor) (HyprlandMonitor, error) {
 	return HyprlandMonitor{}, fmt.Errorf("[ERROR] - not found")
 }
 
+// SendNotification sends a Hyprland notification
 func SendNotification(time int, msgType, msg string) error {
 	icon := -1
 	prefix := "  [Gophrland]"
@@ -142,26 +150,42 @@ func runHyprctlCmd(cmd string) error {
 	return nil
 }
 
+// MoveWindowPixelExact move at precise HyprlandClient.At the HyprlandClient.Address
 func MoveWindowPixelExact(x, y int, address string) error {
 	return runHyprctlCmd(fmt.Sprintf("dispatch movewindowpixel exact %d %d,address:%s", x, y, address))
 }
 
+// ToggleFloating activate/deactivate the HyprlandClient.Floating mode for the given HyprlandClient.Address
+func ToggleFloating(address string) error {
+	return runHyprctlCmd(fmt.Sprintf("dispatch togglefloating address:%s", address))
+}
+
+// ToggleSpecialWorkspace show/hide the special HyprlandWorkspace.Name
 func ToggleSpecialWorkspace(name string) error {
 	return runHyprctlCmd(fmt.Sprintf("dispatch togglespecialworkspace %s", name))
 }
 
-func CenterFloatingClient(client HyprlandClient, monitor HyprlandMonitor) error {
+// CenterFloatingClient put a HyprlandClient at the center of a HyprlandMonitor.
+// This applies an offset so windows are not stacked on the exact same position
+func CenterFloatingClient(client HyprlandClient, monitor HyprlandMonitor, applyRand bool) error {
 	margin := 100
 	randFactorX := client.Size[0]
 	randFactorY := client.Size[1]
 	randX := rand.Intn(randFactorX)
 	randY := rand.Intn(randFactorY)
+	if !applyRand {
+		randFactorX = 0
+		randFactorY = 0
+		randX = 0
+		randY = 0
+	}
 	centerX := (monitor.X + monitor.Width - monitor.Width/2) - client.Size[0]/2 - randFactorX/2 + randX
 	centerY := (monitor.Y + monitor.Height - monitor.Height/2) - client.Size[1]/2 - randFactorY/2 + randY + margin
 
 	return runHyprctlCmd(fmt.Sprintf("dispatch movewindowpixel exact %d %d,address:%s", centerX, centerY, client.Address))
 }
 
+// MoveToCurrent moves a given HyprlandClient.Address to current HyprlandWorkspace
 func MoveToCurrent(address string) error {
 	monitors, err := Monitors("-j")
 	if err != nil {
@@ -173,36 +197,44 @@ func MoveToCurrent(address string) error {
 		return err
 	}
 
-	if err := MoveToWorkspaceID(monitor.ActiveWorkspace.Id, address); err != nil {
+	if err := MoveClientToWorkspaceIDSilent(monitor.ActiveWorkspace.Id, address); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func FocusCurrentWorkspace(currentWorkspaceId int) error {
-	return runHyprctlCmd(fmt.Sprintf("dispatch workspace %d", currentWorkspaceId))
+// FocusWorkspaceID focuses a HyprlandWorkspace.Id
+func FocusWorkspaceID(ID int) error {
+	return runHyprctlCmd(fmt.Sprintf("dispatch workspace %d", ID))
 }
 
-func MoveToWorkspaceID(currentWorkspaceID int, address string) error {
-	return MoveToWorkspaceSilent(strconv.Itoa(currentWorkspaceID), address)
+// MoveClientToWorkspaceIDSilent moves a given HyprlandClient.Address to given HyprlandWorkspace.Id id but don't focus it
+func MoveClientToWorkspaceIDSilent(workspaceID int, clientAddress string) error {
+	return MoveClientToWorkspaceSilent(strconv.Itoa(workspaceID), clientAddress)
 }
+
+// FocusWindow focuses a given HyprlandClient.Address
 func FocusWindow(address string) error {
 	return runHyprctlCmd(fmt.Sprintf("dispatch focuswindow address:%s", address))
 }
 
+// FocusMonitor focuses a given HyprlandMonitor
 func FocusMonitor(monitor HyprlandMonitor) error {
 	return runHyprctlCmd(fmt.Sprintf("dispatch focusmonitor %s", monitor.Name))
 }
 
-func MoveToWorkspace(name, address string) error {
-	return runHyprctlCmd(fmt.Sprintf("dispatch movetoworkspace %s,address:%s", name, address))
+// MoveClientToWorkspaceName moves a given HyprlandClient.Address to a HyprlandWorkspace.Name and focus the HyprlandClient
+func MoveClientToWorkspaceName(workspaceName, clientAddress string) error {
+	return runHyprctlCmd(fmt.Sprintf("dispatch movetoworkspace %s,clientAddress:%s", workspaceName, clientAddress))
 }
 
-func MoveToWorkspaceSilent(name, address string) error {
+// MoveClientToWorkspaceSilent moves a given HyprlandClient.Address to a HyprlandWorkspace.Name without focussing the HyprlandClient
+func MoveClientToWorkspaceSilent(name, address string) error {
 	return runHyprctlCmd(fmt.Sprintf("dispatch movetoworkspacesilent %s,address:%s", name, address))
 }
 
+// GetActiveWorkspace returns the active HyprlandWorkspace
 func GetActiveWorkspace() (HyprlandWorkspace, error) {
 	activeClient, err := GetActiveClient()
 	if err != nil {
@@ -212,6 +244,7 @@ func GetActiveWorkspace() (HyprlandWorkspace, error) {
 	return activeClient.Workspace, nil
 }
 
+// GetWorkspaces returns all HyprlandWorkspace
 func GetWorkspaces() ([]HyprlandWorkspace, error) {
 	ret, err := exec.Command("hyprctl", "workspaces", "-j").Output()
 	if err != nil {
@@ -226,9 +259,11 @@ func GetWorkspaces() ([]HyprlandWorkspace, error) {
 	fmt.Println(workspaces)
 	return workspaces, nil
 }
-func MoveToSpecialNamed(specialName, address string) error {
-	if specialName != "" {
-		specialName = fmt.Sprintf(":%s", specialName)
+
+// MoveToSpecialNamed moves given HyprlandClient.Address to named special HyprlandWorkspace
+func MoveToSpecialNamed(specialWorkspaceName, clientAddress string) error {
+	if specialWorkspaceName != "" {
+		specialWorkspaceName = fmt.Sprintf(":%s", specialWorkspaceName)
 	}
-	return MoveToWorkspaceSilent("special"+specialName, address)
+	return MoveClientToWorkspaceSilent("special"+specialWorkspaceName, clientAddress)
 }
