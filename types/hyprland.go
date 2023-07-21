@@ -1,4 +1,4 @@
-package IPC
+package types
 
 type HyprlandWorkspace struct {
 	Id              int    `json:"id"`
