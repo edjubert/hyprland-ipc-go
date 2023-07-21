@@ -226,7 +226,7 @@ func FocusMonitor(monitor HyprlandMonitor) error {
 
 // MoveClientToWorkspaceName moves a given HyprlandClient.Address to a HyprlandWorkspace.Name and focus the HyprlandClient
 func MoveClientToWorkspaceName(workspaceName, clientAddress string) error {
-	return runHyprctlCmd(fmt.Sprintf("dispatch movetoworkspace %s,clientAddress:%s", workspaceName, clientAddress))
+	return runHyprctlCmd(fmt.Sprintf("dispatch movetoworkspace %s,address:%s", workspaceName, clientAddress))
 }
 
 // MoveClientToWorkspaceSilent moves a given HyprlandClient.Address to a HyprlandWorkspace.Name without focussing the HyprlandClient
@@ -284,7 +284,7 @@ func GetMonitorByID(monitorId int) (HyprlandMonitor, error) {
 	return HyprlandMonitor{}, fmt.Errorf("[ERROR] - Could not find monitor %d\n", monitorId)
 }
 
-// ResizeWindowPixel resize given HyprlandClient to specific width and height
-func ResizeWindowPixel(client HyprlandClient, intWidth, intHeight int) error {
-	return runHyprctlCmd(fmt.Sprintf("dispatch resizewindowpixel %d %d,address:%s", intWidth, intHeight, client.Address))
+// ResizeWindowExactPixel resize given HyprlandClient to specific width and height
+func ResizeWindowExactPixel(client HyprlandClient, intWidth, intHeight int) error {
+	return runHyprctlCmd(fmt.Sprintf("dispatch resizewindowpixel exact %d %d,address:%s", intWidth, intHeight, client.Address))
 }
