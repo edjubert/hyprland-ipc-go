@@ -9,4 +9,8 @@ go_library(
     ],
     importpath = "github.com/edjubert/hyprland-ipc-go/hyprctl",
     visibility = [ "//visibility:public" ],
+    deps = [
+      "//IPC",
+      "//types"
+    ],
 )

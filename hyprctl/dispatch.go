@@ -2,7 +2,7 @@ package hyprctl
 
 import (
 	"fmt"
-	IPC "github.com/edjubert/hyprland-ipc-go"
+	"github.com/edjubert/hyprland-ipc-go/IPC"
 	"github.com/edjubert/hyprland-ipc-go/types"
 	"math/rand"
 )
