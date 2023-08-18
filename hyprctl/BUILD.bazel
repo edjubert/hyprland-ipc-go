@@ -1,0 +1,12 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_library")
+
+go_library(
+    name = "types",
+    srcs = [
+        "dispatch.go",
+        "get.go",
+        "notify.go",
+    ],
+    importpath = "github.com/edjubert/hyprland-ipc-go/hyprctl",
+    visibility = [ "//visibility:public" ],
+)
