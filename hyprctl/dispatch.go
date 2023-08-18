@@ -2,7 +2,7 @@ package hyprctl
 
 import (
 	"fmt"
-	"github.com/edjubert/hyprland-ipc-go/IPC"
+	"github.com/edjubert/hyprland-ipc-go"
 	"github.com/edjubert/hyprland-ipc-go/types"
 	"math/rand"
 )
@@ -115,7 +115,7 @@ const (
 )
 
 func runHyprctlSocket(cmd string) error {
-	conn, err := IPC.ConnectHyprctl(0)
+	conn, err := hyprland_ipc_go.ConnectHyprctl(0)
 	if err != nil {
 		return err
 	}

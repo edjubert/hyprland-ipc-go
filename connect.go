@@ -1,4 +1,4 @@
-package IPC
+package hyprland_ipc_go
 
 import (
 	"bytes"
