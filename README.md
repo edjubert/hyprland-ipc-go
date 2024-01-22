@@ -81,32 +81,35 @@ All dispatchers are using [Hyprland IPC](https://wiki.hyprland.org/IPC/) so all 
 This prevents you to block your Hyprland session if you are running a heavy command
 
 #### Current implementation
-- Dispatch
-  - Move
-    - `WindowPixelExact(x int, y int, clientAddress string) error`
-    - `ToWorkspaceName(workspaceName string, clientAddress string) error`
-    - `ToWorkspaceSilen(workspaceName string, clientAddress string) error`
-    - `ToSpecialNamed(specialWorkspaceName string, clientAddress string) error`
-    - `ClientToCurrent(clientAddress string) error`
-    - `CenterFloatingClient(client HyprlandClient, monitor HyprlandMonitor, applyRand bool) error`
-  - Focus
-    - `Window(clientAddress string) error`
-    - `Monitor(monitor HyprlandMonitor) error`
-  - Toggle
-    - `Floating(clientAddress string) error`
-    - `SpecialWorkspace(specialWorkspaceName string) error`
-  - `ResizeWindowExactPixel(client HyprlandClient, width int, height int) error`
-  - `FocusWorkspaceID(workspaceId int) error`
+- Move
+  - `WindowPixelExact(x int, y int, clientAddress string) error`
+  - `ToWorkspaceName(workspaceName string, clientAddress string) error`
+  - `ToWorkspaceSilen(workspaceName string, clientAddress string) error`
+  - `ToSpecialNamed(specialWorkspaceName string, clientAddress string) error`
+  - `ClientToCurrent(clientAddress string) error`
+  - `CenterFloatingClient(client HyprlandClient, monitor HyprlandMonitor, applyRand bool) error`
+- Focus
+  - `Window(clientAddress string) error`
+  - `Monitor(monitor HyprlandMonitor) error`
+  - `WorkspaceID(workspaceId int) error`
+- Toggle
+  - `Floating(clientAddress string) error`
+  - `SpecialWorkspace(specialWorkspaceName string) error`
+-  Resize
+    - `WindowExactPixel(client HyprlandClient,width int, height int) error`
 
 #### Example
+
 ```go
 package main
 
-import "github.com/edjubert/hyprland-ipc-go/hyprctl"
+import (
+  "github.com/edjubert/hyprland-ipc-go/hyprctl/dispatch"
+)
 
 func main() {
-	dispatch := hyprctl.Dispatch{}
-	_ = dispatch.Move.ToWorkspaceName("my workspace name", "0x000000")
+  move := dispatch.Move{}
+  _ = move.ToWorkspaceName("my workspace name", "0x000000")
 }
 ```
 
@@ -123,6 +126,23 @@ func main() {
   - `Workspaces() ([]HyprlandWorkspace, error)`
   - `MonitorByID(monitorId int) (HyprlandMonitor, error)`
 
+#### Example
+
+```go
+package main
+
+import (
+	"github.com/edjubert/hyprctl-ipc/get"
+)
+
+func main() {
+	getter := get.Get{}
+    if _, err := getter.ActiveClient(); err != nil {
+		// Do something
+    }
+}
+```
+
 ### Send Hyprland notification
 Like [dispatchers](#dispatchers), `SendNotification` uses [Hyprland IPC](https://wiki.hyprland.org/IPC/)
 - `SendNotification(time int, msgType string, msg string) error`
@@ -130,10 +150,10 @@ Like [dispatchers](#dispatchers), `SendNotification` uses [Hyprland IPC](https:/
 ```go
 package main
 
-import "github.com/edjubert/hyprland-ipc-go/hyprctl"
+import "github.com/edjubert/hyprland-ipc-go/hyprctl/notify"
 
 func main() {
-	_ = hyprctl.SendNotification(2000, "info", "Hello hyprland-ipc-go")
+	_ = notify.SendNotification(2000, "info", "Hello hyprland-ipc-go")
 }
 ```
 
