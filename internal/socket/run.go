@@ -2,7 +2,7 @@ package socket
 
 import (
 	"fmt"
-	IPC "github.com/edjubert/hyprland-ipc-go"
+	IPC "github.com/edjubert/hyprland-ipc-go/ipc"
 )
 
 // WriteCmd allow you to write any command on the Hyprland socket.

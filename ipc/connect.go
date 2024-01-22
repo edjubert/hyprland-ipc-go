@@ -1,4 +1,4 @@
-package IPC
+package ipc
 
 import (
 	"bytes"
