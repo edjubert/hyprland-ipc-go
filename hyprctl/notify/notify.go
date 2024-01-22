@@ -1,6 +1,9 @@
-package hyprctl
+package notify
 
-import "fmt"
+import (
+	"fmt"
+	"github.com/edjubert/hyprland-ipc-go/internal/socket"
+)
 
 const (
 	NotifyPrefix = ""
@@ -29,5 +32,5 @@ func SendNotification(time int, msgType, msg string) error {
 
 	color := "rgb(ff1ea3)"
 
-	return runHyprctlSocket(fmt.Sprintf("notify %d %d %s %s: %s", icon, time, color, NotifyPrefix, msg))
+	return socket.WriteCmd(fmt.Sprintf("notify %d %d %s %s: %s", icon, time, color, NotifyPrefix, msg))
 }

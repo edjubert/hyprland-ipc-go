@@ -1,4 +1,4 @@
-package hyprctl
+package get
 
 import (
 	"encoding/json"
