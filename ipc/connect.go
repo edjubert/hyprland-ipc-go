@@ -25,7 +25,7 @@ type Echo struct {
 }
 
 func GetSignature() string {
-	return fmt.Sprintf("%s/%s", os.Getenv(XdgRuntimeDir), os.Getenv(HyprlandInstanceSignature))
+	return fmt.Sprintf("%s/hypr/%s", os.Getenv(XdgRuntimeDir), os.Getenv(HyprlandInstanceSignature))
 }
 
 // StartUnixConnection returns a connection to a socket name under <XDG_RUNTIME_DIR>/<HYPRLAND_INSTANCE_SIGNATURE>/.
