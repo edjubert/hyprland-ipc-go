@@ -14,6 +14,9 @@ import (
 // HyprlandInstanceSignature is the hyprland instance signature
 const HyprlandInstanceSignature = "HYPRLAND_INSTANCE_SIGNATURE"
 
+// XdgRuntimeDir is the environment variable that lead to directory for XDG runtime
+const XdgRuntimeDir = "XDG_RUNTIME_DIR"
+
 const MaxBufferReadSize = 4096
 
 type Echo struct {
@@ -22,12 +25,12 @@ type Echo struct {
 }
 
 func GetSignature() string {
-	return os.Getenv(HyprlandInstanceSignature)
+	return fmt.Sprintf("%s/%s", os.Getenv(XdgRuntimeDir), os.Getenv(HyprlandInstanceSignature))
 }
 
 // StartUnixConnection returns a connection to a socket name under /tmp/hypr/<HYPRLAND_INSTANCE_SIGNATURE>/.socketname.sock
 func StartUnixConnection(name string) net.Conn {
-	connection, err := net.Dial("unix", fmt.Sprintf("/tmp/hypr/%s/%s", GetSignature(), name))
+	connection, err := net.Dial("unix", fmt.Sprintf("%s/%s", GetSignature(), name))
 	if err != nil {
 		panic(err)
 	}
