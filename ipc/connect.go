@@ -14,6 +14,9 @@ import (
 // HyprlandInstanceSignature is the hyprland instance signature
 const HyprlandInstanceSignature = "HYPRLAND_INSTANCE_SIGNATURE"
 
+// XdgRuntimeDir is the environment variable that lead to directory for XDG runtime
+const XdgRuntimeDir = "XDG_RUNTIME_DIR"
+
 const MaxBufferReadSize = 4096
 
 type Echo struct {
@@ -22,12 +25,13 @@ type Echo struct {
 }
 
 func GetSignature() string {
-	return os.Getenv(HyprlandInstanceSignature)
+	return fmt.Sprintf("%s/%s", os.Getenv(XdgRuntimeDir), os.Getenv(HyprlandInstanceSignature))
 }
 
-// StartUnixConnection returns a connection to a socket name under /tmp/hypr/<HYPRLAND_INSTANCE_SIGNATURE>/.socketname.sock
+// StartUnixConnection returns a connection to a socket name under <XDG_RUNTIME_DIR>/<HYPRLAND_INSTANCE_SIGNATURE>/.
+// socketname.sock
 func StartUnixConnection(name string) net.Conn {
-	connection, err := net.Dial("unix", fmt.Sprintf("/tmp/hypr/%s/%s", GetSignature(), name))
+	connection, err := net.Dial("unix", fmt.Sprintf("%s/%s", GetSignature(), name))
 	if err != nil {
 		panic(err)
 	}
@@ -105,7 +109,7 @@ const MaxDialAttemp = 10
 //	}
 func ConnectHyprctl(attempt int) (net.Conn, error) {
 	signature := GetSignature()
-	hyprctl := "/tmp/hypr/" + signature + "/.socket.sock"
+	hyprctl := signature + "/.socket.sock"
 
 	conn, err := net.Dial("unix", hyprctl)
 	if err != nil {
@@ -133,7 +137,7 @@ type HyprlandCallback func(socketMessages HyprSocketMessage)
 // ConnectEvents opens a connection to the readable hyprland socket
 func ConnectEvents(callbacks []HyprlandCallback) {
 	signature := GetSignature()
-	socket := "/tmp/hypr/" + signature + "/.socket2.sock"
+	socket := signature + "/.socket2.sock"
 
 	conn, err := net.Dial("unix", socket)
 	if err != nil {
