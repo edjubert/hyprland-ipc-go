@@ -9,12 +9,12 @@ import (
 
 // RemoveSocket removes the socket file
 func RemoveSocket(name string) error {
-	return os.Remove(fmt.Sprintf("/tmp/hypr/%s/%s", GetSignature(), name))
+	return os.Remove(fmt.Sprintf("%s/%s", GetSignature(), name))
 }
 
 // CreateSocket creates the socket file
 func CreateSocket(name string) net.Listener {
-	socket := fmt.Sprintf("/tmp/hypr/%s/%s", GetSignature(), name)
+	socket := fmt.Sprintf("%s/%s", GetSignature(), name)
 
 	server, err := net.Listen("unix", socket)
 	if err != nil {
